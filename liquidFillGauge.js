@@ -14,7 +14,7 @@ function liquidFillGaugeDefaultSettings(){
         waveAnimate: true, // Controls if the wave scrolls or is static.
         waveColor: "#178BCA", // The color of the fill wave.
         waveOffset: 0, // The amount to initially offset the wave. 0 = no offset. 1 = offset of one full wave.
-        textRise: .5, // The height at which to display the percentage text withing the wave circle. 0 = bottom, 1 = top.
+        textVertPosition: .5, // The height at which to display the percentage text withing the wave circle. 0 = bottom, 1 = top.
         textSize: 1, // The relative height of the text to display in the wave circle. 1 = 50%
         valueCountUp: true, // If true, the displayed value counts up from 0 to it's final value upon loading. If false, the final value is displayed.
         displayPercent: true, // If true, a % symbol is displayed after the value.
@@ -118,7 +118,7 @@ function loadLiquidFillGauge(elementId, value, config) {
         .attr("text-anchor", "middle")
         .attr("font-size", textPixels + "px")
         .style("fill", config.textColor)
-        .attr('transform','translate('+radius+','+textRiseScaleY(config.textRise)+')');
+        .attr('transform','translate('+radius+','+textRiseScaleY(config.textVertPosition)+')');
 
     // The clipping wave area.
     var clipArea = d3.svg.area()
@@ -148,33 +148,32 @@ function loadLiquidFillGauge(elementId, value, config) {
         .attr("text-anchor", "middle")
         .attr("font-size", textPixels + "px")
         .style("fill", config.waveTextColor)
-        .attr('transform','translate('+radius+','+textRiseScaleY(config.textRise)+')');
+        .attr('transform','translate('+radius+','+textRiseScaleY(config.textVertPosition)+')');
 
     // Make the value count up.
     if(config.valueCountUp){
+        var textTween = function(){
+            var i = d3.interpolate(this.textContent, textFinalValue);
+            return function(t) { this.textContent = textRounder(i(t)) + percentText; }
+        };
         text1.transition()
             .duration(config.waveRiseTime)
-            .tween("text", function(){
-                var i = d3.interpolate(this.textContent, textFinalValue);
-                return function(t) { this.textContent = textRounder(i(t)) + percentText; }
-            });
+            .tween("text", textTween);
         text2.transition()
             .duration(config.waveRiseTime)
-            .tween("text", function(){
-                var i = d3.interpolate(this.textContent, textFinalValue);
-                return function(t) { this.textContent = textRounder(i(t)) + percentText; }
-            });
+            .tween("text", textTween);
     }
 
     // Make the wave rise. wave and waveGroup are separate so that horizontal and vertical movement can be controlled independently.
+    var waveGroupXPosition = fillCircleMargin+fillCircleRadius*2-waveClipWidth;
     if(config.waveRise){
-        waveGroup.attr('transform','translate('+(fillCircleMargin+fillCircleRadius*2-waveClipWidth)+','+(waveRiseScale(0))+')')
+        waveGroup.attr('transform','translate('+waveGroupXPosition+','+waveRiseScale(0)+')')
             .transition()
             .duration(config.waveRiseTime)
-            .attr('transform','translate('+(fillCircleMargin+fillCircleRadius*2-waveClipWidth)+','+(waveRiseScale(fillPercent))+')')
+            .attr('transform','translate('+waveGroupXPosition+','+waveRiseScale(fillPercent)+')')
             .each("start", function(){ wave.attr('transform','translate(1,0)'); }); // This transform is necessary to get the clip wave positioned correctly when waveRise=true and waveAnimate=false. The wave will not position correctly without this, but it's not clear why this is actually necessary.
     } else {
-        waveGroup.attr('transform','translate('+(fillCircleMargin+fillCircleRadius*2-waveClipWidth)+','+(waveRiseScale(fillPercent))+')');
+        waveGroup.attr('transform','translate('+waveGroupXPosition+','+waveRiseScale(fillPercent)+')');
     }
 
     if(config.waveAnimate) animateWave();
