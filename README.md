@@ -1,4 +1,5 @@
 Configurable features include:
+
 * Changing min/max values.
 * All colors.
 * Outer circle thickness.
