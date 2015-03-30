@@ -17,6 +17,6 @@ Configurable features include:
 * Text increment from min value upon loading.
 * Display of % symbol on/off.
 
-Open source under [BSD 2-clause](http://choosealicense.com/licenses/bsd-2-clause/)
-Copyright (c) 2015, Curtis Bratton
-All rights reserved.
+> Open source under [BSD 2-clause](http://choosealicense.com/licenses/bsd-2-clause/)
+> Copyright (c) 2015, Curtis Bratton
+> All rights reserved.
