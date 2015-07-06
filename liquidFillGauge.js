@@ -10,6 +10,7 @@ function liquidFillGaugeDefaultSettings(){
         circleThickness: 0.05, // The outer circle thickness as a percentage of it's radius.
         circleFillGap: 0.05, // The size of the gap between the outer circle and wave circle as a percentage of the outer circles radius.
         circleColor: "#178BCA", // The color of the outer circle.
+        backgroundColor: null, // The color of the background
         waveHeight: 0.05, // The wave height as a percentage of the radius of the wave circle.
         waveCount: 1, // The number of full waves per width of the wave circle.
         waveRiseTime: 1000, // The amount of time in milliseconds for the wave to rise from 0 to it's final height.
@@ -104,6 +105,14 @@ function loadLiquidFillGauge(elementId, value, config) {
     // Center the gauge within the parent SVG.
     var gaugeGroup = gauge.append("g")
         .attr('transform','translate('+locationX+','+locationY+')');
+
+    // Draw the background circle
+    if (config.backgroundColor != null) {
+        gaugeGroup.append("circle")
+           .attr("r", radius)
+           .style("fill", config.backgroundColor)
+           .attr('transform','translate('+radius+','+radius+')');
+    }
 
     // Draw the outer circle.
     var gaugeCircleArc = d3.svg.arc()
