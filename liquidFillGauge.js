@@ -5,9 +5,9 @@
  */
 (function(d3) {
     var idGenerator = (function() {
-        var a = 0;
+        var count = 0;
         return function(prefix) {
-            return prefix + "-" + a++;
+            return prefix + "-" + count++;
         };
     })();
 
