@@ -17,8 +17,13 @@
 <script src="http://d3js.org/d3.v3.min.js" type="text/javascript"></script>
 <script src="liquidFillGauge.js" type="text/javascript"></script>
 <script type="text/javascript">
-    d3.select("#fillgauge1").call(d3.liquidfillgauge(55));
-    d3.select("#fillgauge2").call(d3.liquidfillgauge(28, {
+    d3.select("#fillgauge1").call(d3.liquidfillgauge, 55);
+    setInterval(function() {
+      d3.select("#fillgauge1").on("valueChanged")(Math.floor(Math.random() * 100));
+    }, 2000);
+
+
+    d3.select("#fillgauge2").call(d3.liquidfillgauge, 28, {
       circleColor: "#FF7777",
       textColor: "#FF4444",
       waveTextColor: "#FFAAAA",
@@ -27,8 +32,8 @@
       textVertPosition: 0.2,
       waveAnimateTime: 1000,
       backgroundColor: "#e0e0e0"
-    }));
-    d3.select("#fillgauge3").call(d3.liquidfillgauge(60.1, {
+    });
+    d3.select("#fillgauge3").call(d3.liquidfillgauge, 60.1, {
       circleColor: "#D4AB6A",
       textColor: "#553300",
       waveTextColor: "#805615",
@@ -39,8 +44,8 @@
       waveAnimateTime: 2000,
       waveHeight: 0.3,
       waveCount: 1
-    }));
-    d3.select("#fillgauge4").call(d3.liquidfillgauge(50, {
+    });
+    d3.select("#fillgauge4").call(d3.liquidfillgauge, 50, {
       textVertPosition: 0.8,
       waveAnimateTime: 5000,
       waveHeight: 0.15,
@@ -48,8 +53,8 @@
       waveOffset: 0.25,
       valueCountUp: false,
       displayPercent: false
-    }));
-    d3.select("#fillgauge5").call(d3.liquidfillgauge(60.44, {
+    });
+    d3.select("#fillgauge5").call(d3.liquidfillgauge, 60.44, {
       circleThickness: 0.15,
       circleColor: "#808015",
       textColor: "#555500",
@@ -63,8 +68,8 @@
       waveOffset: 0.25,
       textSize: 0.75,
       waveCount: 3
-    }));
-    d3.select("#fillgauge6").call(d3.liquidfillgauge(120, {
+    });
+    d3.select("#fillgauge6").call(d3.liquidfillgauge, 120, {
       circleThickness: 0.4,
       circleColor: "#6DA398",
       textColor: "#0E5144",
@@ -80,7 +85,7 @@
       minValue: 30,
       maxValue: 150,
       displayPercent: false
-    }));
+    });
 </script>
 </body>
 </html>
