@@ -1,3 +1,5 @@
+![Preview](thumbnail.gif)
+
 Configurable features include:
 
 * Changeable min/max values.
