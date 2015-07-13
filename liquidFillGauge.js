@@ -41,7 +41,7 @@
       config.set(key, val);
     });
 
-    function liquidfillgauge(g) {
+    var liquidfillgauge = function(g) {
       g.each(function(d){
         var gauge = d3.select(this);
         var radius = Math.min(parseInt(gauge.style("width")), parseInt(gauge.style("height")))/2;
@@ -202,20 +202,21 @@
             waveGroup.attr('transform','translate('+waveGroupXPosition+','+waveRiseScale(fillPercent)+')');
         }
 
-        if(config.get("waveAnimate")) animateWave();
-
-        function animateWave() {
-            wave.transition()
-                .duration(config.get("waveAnimateTime"))
-                .ease("linear")
-                .attr('transform','translate('+waveAnimateScale(1)+',0)')
-                .each("end", function(){
-                    wave.attr('transform','translate('+waveAnimateScale(0)+',0)');
-                    animateWave(config.get("waveAnimateTime"));
-                });
-        }
-      });
-    }
+        if(config.get("waveAnimate")) {
+            var animateWave = function() {
+                wave.transition()
+                    .duration(config.get("waveAnimateTime"))
+                    .ease("linear")
+                    .attr('transform','translate('+waveAnimateScale(1)+',0)')
+                    .each("end", function(){
+                        wave.attr('transform','translate('+waveAnimateScale(0)+',0)');
+                        animateWave();
+                    });
+                };
+                animateWave();
+            }
+        });
+    };
 
     return liquidfillgauge;
   };
