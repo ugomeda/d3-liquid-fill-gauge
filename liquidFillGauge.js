@@ -32,7 +32,9 @@
         valueCountUp: true, // If true, the displayed value counts up from 0 to it's final value upon loading. If false, the final value is displayed.
         displayPercent: true, // If true, a % symbol is displayed after the value.
         textColor: "#045681", // The color of the value text when the wave does not overlap it.
-        waveTextColor: "#A4DBf8" // The color of the value text when the wave overlaps it.
+        waveTextColor: "#A4DBf8", // The color of the value text when the wave overlaps it.
+        width: 0, // You might want to set the width and height if it is not detected properly by the plugin
+        height: 0
     };
 
     d3.liquidfillgauge = function(g, value, settings) {
@@ -44,9 +46,12 @@
 
         g.each(function(d) {
             var gauge = d3.select(this);
-            var radius = Math.min(parseInt(gauge.style("width")), parseInt(gauge.style("height"))) / 2;
-            var locationX = parseInt(gauge.style("width")) / 2 - radius;
-            var locationY = parseInt(gauge.style("height")) / 2 - radius;
+
+            var width = config.get("width") != 0 ? config.get("width") : parseInt(gauge.style("width"));
+            var height = config.get("height") != 0 ? config.get("height") : parseInt(gauge.style("height"));
+            var radius = Math.min(width, height) / 2;
+            var locationX = width / 2 - radius;
+            var locationY = height / 2 - radius;
             var fillPercent = Math.max(config.get("minValue"), Math.min(config.get("maxValue"), value)) / config.get("maxValue");
 
             var waveHeightScale;
