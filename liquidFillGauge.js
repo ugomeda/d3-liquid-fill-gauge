@@ -12,29 +12,40 @@
     })();
 
     var defaultConfig = {
+        // Values
         minValue: 0, // The gauge minimum value.
         maxValue: 100, // The gauge maximum value.
+
+        // Styles
         circleThickness: 0.05, // The outer circle thickness as a percentage of it's radius.
         circleFillGap: 0.05, // The size of the gap between the outer circle and wave circle as a percentage of the outer circles radius.
         circleColor: "#178BCA", // The color of the outer circle.
         backgroundColor: null, // The color of the background
+        waveColor: "#178BCA", // The color of the fill wave.
+        width: 0, // You might want to set the width and height if it is not detected properly by the plugin
+        height: 0,
+
+        // Waves
         waveHeight: 0.05, // The wave height as a percentage of the radius of the wave circle.
         waveCount: 1, // The number of full waves per width of the wave circle.
-        waveRiseTime: 1000, // The amount of time in milliseconds for the wave to rise from 0 to it's final height.
-        waveAnimateTime: 18000, // The amount of time in milliseconds for a full wave to enter the wave circle.
-        waveRise: true, // Control if the wave should rise from 0 to it's full height, or start at it's full height.
-        waveHeightScaling: true, // Controls wave size scaling at low and high fill percentages. When true, wave height reaches it's maximum at 50% fill, and minimum at 0% and 100% fill. This helps to prevent the wave from making the wave circle from appear totally full or empty when near it's minimum or maximum fill.
-        waveAnimate: true, // Controls if the wave scrolls or is static.
-        waveColor: "#178BCA", // The color of the fill wave.
         waveOffset: 0, // The amount to initially offset the wave. 0 = no offset. 1 = offset of one full wave.
+
+        // Animations
+        waveRise: true, // Control if the wave should rise from 0 to it's full height, or start at it's full height.
+        waveRiseTime: 1000, // The amount of time in milliseconds for the wave to rise from 0 to it's final height.
+        waveRiseAtStart: true, // If set to false and waveRise at true, will disable only the initial animation
+        waveAnimate: true, // Controls if the wave scrolls or is static.
+        waveAnimateTime: 18000, // The amount of time in milliseconds for a full wave to enter the wave circle.
+        waveHeightScaling: true, // Controls wave size scaling at low and high fill percentages. When true, wave height reaches it's maximum at 50% fill, and minimum at 0% and 100% fill. This helps to prevent the wave from making the wave circle from appear totally full or empty when near it's minimum or maximum fill.
+        valueCountUp: true, // If true, the displayed value counts up from 0 to it's final value upon loading and updating. If false, the final value is displayed.
+        valueCountUpAtStart: true, // If set to false and valueCountUp at true, will disable only the initial animation
+
+        // Text
         textVertPosition: 0.5, // The height at which to display the percentage text withing the wave circle. 0 = bottom, 1 = top.
         textSize: 1, // The relative height of the text to display in the wave circle. 1 = 50%
-        valueCountUp: true, // If true, the displayed value counts up from 0 to it's final value upon loading. If false, the final value is displayed.
         displayPercent: true, // If true, a % symbol is displayed after the value.
         textColor: "#045681", // The color of the value text when the wave does not overlap it.
         waveTextColor: "#A4DBf8", // The color of the value text when the wave overlaps it.
-        width: 0, // You might want to set the width and height if it is not detected properly by the plugin
-        height: 0
     };
 
     d3.liquidfillgauge = function(g, value, settings) {
@@ -211,9 +222,11 @@
                 animateWave();
             }
 
-            var transition = function(from, to) {
+            var transition = function(from, to, riseWave, animateText) {
+              console.log(from, to, riseWave, animateText);
+
               // Update texts and animate
-              if (config.get("valueCountUp")) {
+              if (animateText) {
                   var textTween = function() {
                       var i = d3.interpolate(from, to);
                       return function(t) {
@@ -227,15 +240,15 @@
                       .duration(config.get("waveRiseTime"))
                       .tween("text", textTween);
               } else {
-                    text1.text(textRounder(from) + percentText);
-                    text2.text(textRounder(from) + percentText);
+                    text1.text(textRounder(to) + percentText);
+                    text2.text(textRounder(to) + percentText);
               }
 
               // Update the wave
               toPercent = Math.max(config.get("minValue"), Math.min(config.get("maxValue"), to)) / config.get("maxValue");
               fromPercent = Math.max(config.get("minValue"), Math.min(config.get("maxValue"), from)) / config.get("maxValue");
 
-              if (config.get("waveRise")) {
+              if (riseWave) {
                   waveGroup.attr('transform', 'translate(' + waveGroupXPosition + ',' + waveRiseScale(fromPercent) + ')')
                       .transition()
                       .duration(config.get("waveRiseTime"))
@@ -245,11 +258,16 @@
               }
             };
 
-            transition(textStartValue, textFinalValue);
+            transition(
+              textStartValue,
+              textFinalValue,
+              config.get("waveRise") && config.get("waveRiseAtStart"),
+              config.get("valueCountUp") && config.get("valueCountUpAtStart")
+            );
 
             // Event to update the value
             gauge.on("valueChanged", function(newValue) {
-              transition(value, newValue);
+              transition(value, newValue, config.get("waveRise"), config.get("valueCountUp"));
               value = newValue;
             });
         });
