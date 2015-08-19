@@ -223,8 +223,6 @@
             }
 
             var transition = function(from, to, riseWave, animateText) {
-              console.log(from, to, riseWave, animateText);
-
               // Update texts and animate
               if (animateText) {
                   var textTween = function() {
