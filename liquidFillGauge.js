@@ -58,8 +58,8 @@
         g.each(function(d) {
             var gauge = d3.select(this);
 
-            var width = config.get("width") != 0 ? config.get("width") : parseInt(gauge.style("width"));
-            var height = config.get("height") != 0 ? config.get("height") : parseInt(gauge.style("height"));
+            var width = config.get("width") !== 0 ? config.get("width") : parseInt(gauge.style("width"));
+            var height = config.get("height") !== 0 ? config.get("height") : parseInt(gauge.style("height"));
             var radius = Math.min(width, height) / 2;
             var locationX = width / 2 - radius;
             var locationY = height / 2 - radius;
@@ -229,7 +229,7 @@
                       var i = d3.interpolate(from, to);
                       return function(t) {
                           this.textContent = textRounder(i(t)) + percentText;
-                      }
+                      };
                   };
                   text1.transition()
                       .duration(config.get("waveRiseTime"))
@@ -267,6 +267,18 @@
             gauge.on("valueChanged", function(newValue) {
               transition(value, newValue, config.get("waveRise"), config.get("valueCountUp"));
               value = newValue;
+            });
+
+            gauge.on("destroy", function() {
+              // Stop all the transitions
+              text1.interrupt().transition();
+              text2.interrupt().transition();
+              waveGroup.interrupt().transition();
+              wave.interrupt().transition();
+
+              // Unattach events
+              gauge.on("valueChanged", null);
+              gauge.on("destroy", null);
             });
         });
     };
