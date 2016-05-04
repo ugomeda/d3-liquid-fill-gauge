@@ -1,0 +1,22 @@
+{
+  "name": "d3-liquid-fill-gauge",
+  "version": "1.0.0",
+  "homepage": "https://github.com/ugomeda/d3-liquid-fill-gauge",
+  "authors": [
+    "Curtis Bratton",
+    "Ugo Méda"
+  ],
+  "description": "Animated rounded gauge d3 plugin",
+  "main": "liquidFillGauge.js",
+  "license": "BSD 2-clause",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "d3": "3.x"
+  }
+}
