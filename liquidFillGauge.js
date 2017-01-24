@@ -25,6 +25,12 @@
         width: 0, // You might want to set the width and height if it is not detected properly by the plugin
         height: 0,
 
+        // Gradient
+        fillWithGradient: false, // Controls if the wave should be filled with gradient
+        gradientPoints: [0, 0, 1., 1.], //  [x1, y1, x2, y2], coordinates for gradient start point(x1,y1) and final point(x2,y2)
+        gradientFromColor: "#FFF",
+        gradientToColor: "#000",
+
         // Waves
         waveHeight: 0.05, // The wave height as a percentage of the radius of the wave circle.
         waveCount: 1, // The number of full waves per width of the wave circle.
@@ -67,13 +73,13 @@
 
             var waveHeightScale;
             if (config.get("waveHeightScaling")) {
-                waveHeightScale = d3.scale.linear()
-                    .range([0, config.get("waveHeight"), 0])
-                    .domain([0, 50, 100]);
+              waveHeightScale = d3.scale.linear()
+                  .range([0, config.get("waveHeight"), 0])
+                  .domain([0, 50, 100]);
             } else {
                 waveHeightScale = d3.scale.linear()
-                    .range([config.get("waveHeight"), config.get("waveHeight")])
-                    .domain([0, 100]);
+                  .range([config.get("waveHeight"), config.get("waveHeight")])
+                  .domain([0, 100]);
             }
 
             var textPixels = (config.get("textSize") * radius / 2);
@@ -124,86 +130,109 @@
 
             // Scales for controlling the position of the clipping path.
             var waveRiseScale = d3.scale.linear()
-                // The clipping area size is the height of the fill circle + the wave height, so we position the clip wave
-                // such that the it will won't overlap the fill circle at all when at 0%, and will totally cover the fill
-                // circle at 100%.
-                .range([(fillCircleMargin + fillCircleRadius * 2 + waveHeight), (fillCircleMargin - waveHeight)])
-                .domain([0, 1]);
+            // The clipping area size is the height of the fill circle + the wave height, so we position the clip wave
+            // such that the it will won't overlap the fill circle at all when at 0%, and will totally cover the fill
+            // circle at 100%.
+              .range([(fillCircleMargin + fillCircleRadius * 2 + waveHeight), (fillCircleMargin - waveHeight)])
+              .domain([0, 1]);
             var waveAnimateScale = d3.scale.linear()
-                .range([0, waveClipWidth - fillCircleRadius * 2]) // Push the clip area one full wave then snap back.
-                .domain([0, 1]);
+              .range([0, waveClipWidth - fillCircleRadius * 2]) // Push the clip area one full wave then snap back.
+              .domain([0, 1]);
 
             // Scale for controlling the position of the text within the gauge.
             var textRiseScaleY = d3.scale.linear()
-                .range([fillCircleMargin + fillCircleRadius * 2, (fillCircleMargin + textPixels * 0.7)])
-                .domain([0, 1]);
+              .range([fillCircleMargin + fillCircleRadius * 2, (fillCircleMargin + textPixels * 0.7)])
+              .domain([0, 1]);
 
             // Center the gauge within the parent SVG.
             var gaugeGroup = gauge.append("g")
-                .attr('transform', 'translate(' + locationX + ',' + locationY + ')');
+              .attr('transform', 'translate(' + locationX + ',' + locationY + ')');
 
             // Draw the background circle
             if (config.get("backgroundColor")) {
                 gaugeGroup.append("circle")
-                    .attr("r", radius)
-                    .style("fill", config.get("backgroundColor"))
-                    .attr('transform', 'translate(' + radius + ',' + radius + ')');
+                  .attr("r", radius)
+                  .style("fill", config.get("backgroundColor"))
+                  .attr('transform', 'translate(' + radius + ',' + radius + ')');
             }
 
             // Draw the outer circle.
             var gaugeCircleArc = d3.svg.arc()
-                .startAngle(gaugeCircleX(0))
-                .endAngle(gaugeCircleX(1))
-                .outerRadius(gaugeCircleY(radius))
-                .innerRadius(gaugeCircleY(radius - circleThickness));
+              .startAngle(gaugeCircleX(0))
+              .endAngle(gaugeCircleX(1))
+              .outerRadius(gaugeCircleY(radius))
+              .innerRadius(gaugeCircleY(radius - circleThickness));
             gaugeGroup.append("path")
-                .attr("d", gaugeCircleArc)
-                .style("fill", config.get("circleColor"))
-                .attr('transform', 'translate(' + radius + ',' + radius + ')');
+              .attr("d", gaugeCircleArc)
+              .style("fill", config.get("circleColor"))
+              .attr('transform', 'translate(' + radius + ',' + radius + ')');
 
             // Text where the wave does not overlap.
             var text1 = gaugeGroup.append("text")
-                .attr("class", "liquidFillGaugeText")
-                .attr("text-anchor", "middle")
-                .attr("font-size", textPixels + "px")
-                .style("fill", config.get("textColor"))
-                .attr('transform', 'translate(' + radius + ',' + textRiseScaleY(config.get("textVertPosition")) + ')');
+              .attr("class", "liquidFillGaugeText")
+              .attr("text-anchor", "middle")
+              .attr("font-size", textPixels + "px")
+              .style("fill", config.get("textColor"))
+              .attr('transform', 'translate(' + radius + ',' + textRiseScaleY(config.get("textVertPosition")) + ')');
 
             // The clipping wave area.
             var clipArea = d3.svg.area()
-                .x(function(d) {
-                    return waveScaleX(d.x);
-                })
-                .y0(function(d) {
-                    return waveScaleY(Math.sin(Math.PI * 2 * config.get("waveOffset") * -1 + Math.PI * 2 * (1 - config.get("waveCount")) + d.y * 2 * Math.PI));
-                })
-                .y1(function(d) {
-                    return (fillCircleRadius * 2 + waveHeight);
-                });
+              .x(function(d) {
+                  return waveScaleX(d.x);
+              })
+              .y0(function(d) {
+                  return waveScaleY(Math.sin(Math.PI * 2 * config.get("waveOffset") * -1 + Math.PI * 2 * (1 - config.get("waveCount")) + d.y * 2 * Math.PI));
+              })
+              .y1(function(d) {
+                  return (fillCircleRadius * 2 + waveHeight);
+              });
+
+            var gaugeGroupDefs = gaugeGroup.append("defs");
+
             var clipId = idGenerator("clipWave");
-            var waveGroup = gaugeGroup.append("defs")
-                .append("clipPath")
-                .attr("id", clipId);
+            var waveGroup = gaugeGroupDefs
+              .append("clipPath")
+              .attr("id", clipId);
             var wave = waveGroup.append("path")
-                .datum(data)
-                .attr("d", clipArea);
+              .datum(data)
+              .attr("d", clipArea);
 
             // The inner circle with the clipping wave attached.
             var fillCircleGroup = gaugeGroup.append("g")
-                .attr("clip-path", "url(#" + clipId + ")");
+              .attr("clip-path", "url(#" + clipId + ")");
             fillCircleGroup.append("circle")
-                .attr("cx", radius)
-                .attr("cy", radius)
-                .attr("r", fillCircleRadius)
-                .style("fill", config.get("waveColor"));
+              .attr("cx", radius)
+              .attr("cy", radius)
+              .attr("r", fillCircleRadius);
+
+            if (config.get("fillWithGradient")) {
+                var points = config.get("gradientPoints");
+                var gradientId = idGenerator("linearGradient");
+                var grad = gaugeGroupDefs.append("linearGradient")
+                  .attr("id", gradientId)
+                  .attr("x1", points[0])
+                  .attr("y1", points[1])
+                  .attr("x2", points[2])
+                  .attr("y2", points[3]);
+                grad.append("stop")
+                  .attr("offset", "0")
+                  .attr("stop-color", config.get("gradientFromColor"));
+                grad.append("stop")
+                  .attr("offset", "1")
+                  .attr("stop-color", config.get("gradientToColor"));
+
+                fillCircleGroup.style("fill", "url(#" + gradientId + ")");
+            } else {
+                fillCircleGroup.style("fill", config.get("waveColor"));
+            }
 
             // Text where the wave does overlap.
             var text2 = fillCircleGroup.append("text")
-                .attr("class", "liquidFillGaugeText")
-                .attr("text-anchor", "middle")
-                .attr("font-size", textPixels + "px")
-                .style("fill", config.get("waveTextColor"))
-                .attr('transform', 'translate(' + radius + ',' + textRiseScaleY(config.get("textVertPosition")) + ')');
+              .attr("class", "liquidFillGaugeText")
+              .attr("text-anchor", "middle")
+              .attr("font-size", textPixels + "px")
+              .style("fill", config.get("waveTextColor"))
+              .attr('transform', 'translate(' + radius + ',' + textRiseScaleY(config.get("textVertPosition")) + ')');
 
             // Make the wave rise. wave and waveGroup are separate so that horizontal and vertical movement can be controlled independently.
             var waveGroupXPosition = fillCircleMargin + fillCircleRadius * 2 - waveClipWidth;
@@ -211,49 +240,49 @@
             if (config.get("waveAnimate")) {
                 var animateWave = function() {
                     wave.transition()
-                        .duration(config.get("waveAnimateTime"))
-                        .ease("linear")
-                        .attr('transform', 'translate(' + waveAnimateScale(1) + ',0)')
-                        .each("end", function() {
-                            wave.attr('transform', 'translate(' + waveAnimateScale(0) + ',0)');
-                            animateWave();
-                        });
+                      .duration(config.get("waveAnimateTime"))
+                      .ease("linear")
+                      .attr('transform', 'translate(' + waveAnimateScale(1) + ',0)')
+                      .each("end", function() {
+                          wave.attr('transform', 'translate(' + waveAnimateScale(0) + ',0)');
+                          animateWave();
+                      });
                 };
                 animateWave();
             }
 
             var transition = function(from, to, riseWave, animateText) {
-              // Update texts and animate
-              if (animateText) {
-                  var textTween = function() {
-                      var i = d3.interpolate(from, to);
-                      return function(t) {
-                          this.textContent = textRounder(i(t)) + percentText;
-                      };
-                  };
-                  text1.transition()
+                // Update texts and animate
+                if (animateText) {
+                    var textTween = function() {
+                        var i = d3.interpolate(from, to);
+                        return function(t) {
+                            this.textContent = textRounder(i(t)) + percentText;
+                        };
+                    };
+                    text1.transition()
                       .duration(config.get("waveRiseTime"))
                       .tween("text", textTween);
-                  text2.transition()
+                    text2.transition()
                       .duration(config.get("waveRiseTime"))
                       .tween("text", textTween);
-              } else {
+                } else {
                     text1.text(textRounder(to) + percentText);
                     text2.text(textRounder(to) + percentText);
-              }
+                }
 
-              // Update the wave
-              toPercent = Math.max(config.get("minValue"), Math.min(config.get("maxValue"), to)) / config.get("maxValue");
-              fromPercent = Math.max(config.get("minValue"), Math.min(config.get("maxValue"), from)) / config.get("maxValue");
+                // Update the wave
+                toPercent = Math.max(config.get("minValue"), Math.min(config.get("maxValue"), to)) / config.get("maxValue");
+                fromPercent = Math.max(config.get("minValue"), Math.min(config.get("maxValue"), from)) / config.get("maxValue");
 
-              if (riseWave) {
-                  waveGroup.attr('transform', 'translate(' + waveGroupXPosition + ',' + waveRiseScale(fromPercent) + ')')
+                if (riseWave) {
+                    waveGroup.attr('transform', 'translate(' + waveGroupXPosition + ',' + waveRiseScale(fromPercent) + ')')
                       .transition()
                       .duration(config.get("waveRiseTime"))
                       .attr('transform', 'translate(' + waveGroupXPosition + ',' + waveRiseScale(toPercent) + ')');
-              } else {
-                  waveGroup.attr('transform', 'translate(' + waveGroupXPosition + ',' + waveRiseScale(toPercent) + ')');
-              }
+                } else {
+                    waveGroup.attr('transform', 'translate(' + waveGroupXPosition + ',' + waveRiseScale(toPercent) + ')');
+                }
             };
 
             transition(
@@ -265,20 +294,20 @@
 
             // Event to update the value
             gauge.on("valueChanged", function(newValue) {
-              transition(value, newValue, config.get("waveRise"), config.get("valueCountUp"));
-              value = newValue;
+                transition(value, newValue, config.get("waveRise"), config.get("valueCountUp"));
+                value = newValue;
             });
 
             gauge.on("destroy", function() {
-              // Stop all the transitions
-              text1.interrupt().transition();
-              text2.interrupt().transition();
-              waveGroup.interrupt().transition();
-              wave.interrupt().transition();
+                // Stop all the transitions
+                text1.interrupt().transition();
+                text2.interrupt().transition();
+                waveGroup.interrupt().transition();
+                wave.interrupt().transition();
 
-              // Unattach events
-              gauge.on("valueChanged", null);
-              gauge.on("destroy", null);
+                // Unattach events
+                gauge.on("valueChanged", null);
+                gauge.on("destroy", null);
             });
         });
     };

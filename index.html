@@ -31,7 +31,7 @@
       waveRiseAtStart: false
     });
     d3.select("#fillgauge3").call(d3.liquidfillgauge, 60.1, {
-      circleColor: "#D4AB6A",
+      circleColor: "#3CA55C",
       textColor: "#553300",
       waveTextColor: "#805615",
       waveColor: "#AA7D39",
@@ -40,7 +40,11 @@
       textVertPosition: 0.8,
       waveAnimateTime: 2000,
       waveHeight: 0.3,
-      waveCount: 1
+      waveCount: 1,
+      fillWithGradient: true,
+      gradientPoints: [0.2, 0, 0.9, 1],
+      gradientFromColor: "#3CA55C",
+      gradientToColor: "#B5AC49"
     });
     d3.select("#fillgauge4").call(d3.liquidfillgauge, 50, {
       textVertPosition: 0.8,
