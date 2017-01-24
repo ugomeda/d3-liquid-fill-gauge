@@ -4,7 +4,7 @@ Configurable features include:
 
 * Changeable min/max values.
 * All colors.
-* Linear gradient
+* Linear gradient.
 * Outer circle thickness.
 * Gap between the outer circle and inner fill area.
 * Wave height.
